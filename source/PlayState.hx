@@ -13,6 +13,7 @@ class PlayState extends FlxState
 	var ninja:NinjaToast;
 	var pig:Pig;
 	var tilemap:FlxTilemap;
+	var bagui:Baguette;
 	private var loader:FlxOgmoLoader;
 	override public function create():Void
 	{
@@ -24,19 +25,20 @@ class PlayState extends FlxState
 		tilemap = loader.loadTilemap(AssetPaths.tiles__png, 32, 32, "tiles");
 		tilemap.setTileProperties(0, FlxObject.NONE);
 		tilemap.setTileProperties(1, FlxObject.ANY);
+		bagui = new Baguette(100 , 300);
 		
 		FlxG.camera.bgColor = 0xFFc7e2ff;
 		
 		add(tilemap);
 		add(ninja);
 		add(pig);
-		FlxG.camera.follow(ninja, FlxCameraFollowStyle.PLATFORMER,1);
+		add(bagui);
+		FlxG.camera.follow(ninja, FlxCameraFollowStyle.PLATFORMER, 1);
+		Global.tilemap = tilemap;
 	}
 
 	override public function update(elapsed:Float):Void
 	{
-		FlxG.collide(ninja, tilemap);
-		FlxG.collide(pig, tilemap);
 		super.update(elapsed);
 	}
 }

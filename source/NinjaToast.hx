@@ -14,7 +14,6 @@ import flixel.util.FlxColor;
  */
 class NinjaToast extends FlxSprite 
 {
-	private static inline var GRAVITY:Float = 1400;
 	private static inline var VEL:Int = 300;
 	private var fsm:FlxFSM<NinjaToast>;
 	private var trail:FlxTrail;
@@ -22,7 +21,6 @@ class NinjaToast extends FlxSprite
 	private var jumped:Bool;
 	private var direction:Int;
 	private var swordArea:SwordArea;
-	//private var
 	
 	public function new(?X:Float=0, ?Y:Float=0) 
 	{
@@ -30,12 +28,12 @@ class NinjaToast extends FlxSprite
 		loadGraphic(AssetPaths.Toast__png, true, 64, 48);
 		animation.add("idle", [0], 6, true, false, false);
 		animation.add("melee", [0,1,2,3], 6, true,false,false);
-		acceleration.y = GRAVITY;
+		acceleration.y = Global.GRAVITY;
 		setFacingFlip(FlxObject.LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		facing = FlxObject.RIGHT;
 		direction = 1;
-		maxVelocity.set(VEL, GRAVITY);
+		maxVelocity.set(VEL, Global.GRAVITY);
 		//Set Escala
 		scale.x = 0.5;
 		updateHitbox();
@@ -85,6 +83,7 @@ class NinjaToast extends FlxSprite
 			else
 				swordArea.reset(x - swordArea.width, y);
 		}
+		FlxG.collide(this, Global.tilemap);
 		super.update(elapsed);
 		//trace(Type.getClassName(fsm.stateClass)); ESTADO
 	}

@@ -11,13 +11,12 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
  */
 class Pig extends FlxSprite 
 {
-	private static inline var GRAVITY:Float = 1400;
 	private static inline var VEL:Int = 200;
 	public function new(?X:Float=0, ?Y:Float=0, ?SimpleGraphic:FlxGraphicAsset) 
 	{
 		super(X, Y, SimpleGraphic);
 		loadGraphic(AssetPaths.Pig__png, false, 32, 18);
-		acceleration.y = GRAVITY;
+		acceleration.y = Global.GRAVITY;
 		setFacingFlip(FlxObject.LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		facing = FlxObject.RIGHT;
@@ -28,6 +27,7 @@ class Pig extends FlxSprite
 		Movement();
 		Jumping();
 		CloseToNinja();
+		FlxG.collide(this, Global.tilemap);
 		super.update(elapsed);
 	}
 	

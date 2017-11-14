@@ -1,4 +1,5 @@
 package;
+import flixel.tile.FlxTilemap;
 
 /**
  * ...
@@ -7,4 +8,6 @@ package;
 class Global 
 {
 	static public var ninja:NinjaToast;
+	static public var tilemap:FlxTilemap;
+	static public var GRAVITY:Float = 1400;
 }
