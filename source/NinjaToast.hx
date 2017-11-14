@@ -27,15 +27,22 @@ class NinjaToast extends FlxSprite
 	public function new(?X:Float=0, ?Y:Float=0) 
 	{
 		super(X, Y);
-		loadGraphic(AssetPaths.Toast__png, false, 32, 48);
+		loadGraphic(AssetPaths.Toast__png, true, 64, 48);
+		animation.add("idle", [0], 6, true, false, false);
+		animation.add("melee", [0,1,2,3], 6, true,false,false);
 		acceleration.y = GRAVITY;
 		setFacingFlip(FlxObject.LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		facing = FlxObject.RIGHT;
 		direction = 1;
 		maxVelocity.set(VEL, GRAVITY);
+		//Set Escala
+		scale.x = 0.5;
+		updateHitbox();
+		scale.x = 1;
 		
 		swordArea = new SwordArea(x + width, y);
+		FlxG.state.add(swordArea);
 		
 		fsm = new FlxFSM<NinjaToast>(this);
 		fsm.transitions
@@ -50,6 +57,13 @@ class NinjaToast extends FlxSprite
 			.add(Fall, AttackShuriken, Conditions.attackingShuriken)
 			.add(AttackShuriken, Idle, Conditions.grounded)
 			.add(AttackShuriken, Fall, Conditions.falling)
+			.add(AttackShuriken, Jump, Conditions.jump)
+			.add(Idle, AttackMelee, Conditions.attackingMelee)
+			.add(Jump, AttackMelee, Conditions.attackingMelee)
+			.add(Fall, AttackMelee, Conditions.attackingMelee)
+			.add(AttackMelee, Idle, Conditions.grounded)
+			.add(AttackMelee, Jump, Conditions.jump)
+			.add(AttackMelee, Fall, Conditions.falling)
 			.start(Idle);
 		
 		trail = new FlxTrail(this, null, 5, 2, 0.4, 0.05);
@@ -62,7 +76,15 @@ class NinjaToast extends FlxSprite
 	
 	override public function update(elapsed:Float):Void 
 	{
-		fsm.update(elapsed);
+		if(!swordArea.alive)
+			fsm.update(elapsed);
+		else
+		{
+			if(direction == 1)
+				swordArea.reset(x + width, y);
+			else
+				swordArea.reset(x - swordArea.width, y);
+		}
 		super.update(elapsed);
 		//trace(Type.getClassName(fsm.stateClass)); ESTADO
 	}
@@ -73,25 +95,15 @@ class NinjaToast extends FlxSprite
 		{
 			velocity.x = -VEL;
 			direction = -1;
-			// ANIMACION animation.play("run");
 		}
 		else if(FlxG.keys.pressed.RIGHT)
 		{
 			velocity.x = VEL;
 			direction = 1;
-			// ANIMACION animation.play("idle");
 		}
 		else
 			velocity.x = 0;
 		facing = (direction==1) ? FlxObject.RIGHT : FlxObject.LEFT;
-	}
-	
-	public function AttackMelee():Void
-	{
-		if (FlxG.keys.justPressed.A)
-		{
-			
-		}
 	}
 	
 	public function setJumped(t:Bool):Void
@@ -107,6 +119,15 @@ class NinjaToast extends FlxSprite
 	public function getDirection():Int
 	{
 		return direction;
+	}
+	
+	public function meleeAttack():Void
+	{
+		swordArea.resetTimer();
+		if(direction == 1)
+			swordArea.reset(x + width, y);
+		else
+			swordArea.reset(x - swordArea.width, y);
 	}
 	
 }
@@ -151,6 +172,7 @@ class Idle extends FlxFSMState<NinjaToast>
 	override public function enter(owner:NinjaToast, fsm:FlxFSM<NinjaToast>):Void
 	{
 		owner.setJumped(true);
+		owner.animation.play("idle");
 	}
 	override public function update(elapsed:Float, owner:NinjaToast, fsm:FlxFSM<NinjaToast>):Void 
 	{
@@ -189,11 +211,13 @@ class AttackMelee extends FlxFSMState<NinjaToast>
 {
 	override public function enter(owner:NinjaToast, fsm:FlxFSM<NinjaToast>):Void
 	{
-		// animacion play (jump)
+		owner.animation.play("melee");
+		owner.meleeAttack();
+		owner.velocity.x = 0;
 	}
 	override public function update(elapsed:Float, owner:NinjaToast, fsm:FlxFSM<NinjaToast>):Void 
 	{
-		owner.Movement();
+		
 	}
 }
 
@@ -201,7 +225,7 @@ class AttackShuriken extends FlxFSMState<NinjaToast>
 {
 	override public function enter(owner:NinjaToast, fsm:FlxFSM<NinjaToast>):Void
 	{
-		// animacion play (jump)
+		// animacion play (shuriken)
 		var shuriken:Shuriken;
 		if(owner.getDirection() == 1)
 			shuriken = new Shuriken(owner.x + owner.width, owner.y + owner.height / 2);
