@@ -83,9 +83,9 @@ class NinjaToast extends FlxSprite
 			else
 				swordArea.reset(x - swordArea.width, y);
 		}
-		FlxG.collide(this, Global.tilemap);
 		super.update(elapsed);
-		//trace(Type.getClassName(fsm.stateClass)); ESTADO
+		FlxG.collide(this, Global.tilemap);
+		//trace(Type.getClassName(fsm.stateClass));
 	}
 	
 	public function Movement():Void
